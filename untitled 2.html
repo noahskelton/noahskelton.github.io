@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Break</title>
+</head>
+<body>
+    <h1>Coffee Break</h1>
+    <p>Last check: <span id="last-check">N/A</span></p>
+    <p>Next check: <span id="next-check">N/A</span></p>
+    <p>Coffee breaks taken: <span id="breaks-taken">0</span></p>
+    <button id="start-button">Start checking for coffee breaks</button>
+
+    <script>
+        let coffeeBreaksTaken = 0;
+        const lastCheckElement = document.getElementById('last-check');
+        const nextCheckElement = document.getElementById('next-check');
+        const breaksTakenElement = document.getElementById('breaks-taken');
+        const startButton = document.getElementById('start-button');
+
+        startButton.addEventListener('click', () => {
+            startButton.disabled = true;
+            checkCoffeeBreak();
+        });
+
+        function checkCoffeeBreak() {
+            const now = new Date();
+            const hours = now.getHours();
+
+            lastCheckElement.textContent = now.toLocaleString();
+
+            if (hours >= 9 && hours <= 19) {
+                if (Math.random() <= 0.125) {
+                    coffeeBreaksTaken++;
+                    breaksTakenElement.textContent = coffeeBreaksTaken;
+                    console.log('Yes, take a coffee break!');
+                    playCMajorChord();
+                } else {
+                    console.log('No coffee break.');
+                }
+            }
+
+            if (coffeeBreaksTaken < 6) {
+                setTimeout(checkCoffeeBreak, 1000); // Check again in 1 hour
+                const nextCheck = new Date(now.getTime() + (60 * 60 * 1000));
+                nextCheckElement.textContent = nextCheck.toLocaleString();
+            } else {
+                console.log('You have taken 4 coffee breaks. Stopping...');
+            }
+        }
+
+		function playCMajorChord() {
+		    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		    const notes = [261.63, 329.63, 392.00]; // Frequencies for C, E, and G
+
+		    notes.forEach(frequency => {
+		        const oscillator = audioContext.createOscillator();
+		        const vibratoOscillator = audioContext.createOscillator();
+		        const vibratoGain = audioContext.createGain();
+		        const gainNode = audioContext.createGain();
+
+		        // Vibrato effect
+		        vibratoOscillator.frequency.value = 5; // Vibrato frequency (Hz)
+		        vibratoGain.gain.value = 5; // Vibrato depth
+
+		        // Vibraphone-like sound
+		        oscillator.type = 'sine';
+		        oscillator.frequency.value = frequency;
+
+		        // Volume, attack, and tail
+		        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+		        gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 2); // 50% volume with 2s attack
+		        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 12); // 10s tail
+
+		        // Connect nodes
+		        vibratoOscillator.connect(vibratoGain);
+		        vibratoGain.connect(oscillator.frequency);
+		        oscillator.connect(gainNode);
+		        gainNode.connect(audioContext.destination);
+
+		        // Start oscillators
+		        oscillator.start();
+		        vibratoOscillator.start();
+		        setTimeout(() => {
+		            oscillator.stop();
+		            vibratoOscillator.stop();
+		        }, 12000); // Stop the oscillators after 12 seconds
+		    });
+		}
+		
+		
+
+    </script>
+</body>
+</html>
